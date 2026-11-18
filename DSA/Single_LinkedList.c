@@ -121,12 +121,161 @@ void display(struct Node* head) {
     printf("NULL\n");
 }
 
+// 11. REVERSE 
+struct Node* reverseList(struct Node* head) {
+    struct Node *prev = NULL, *curr = head, *next = NULL;
+
+    for (; curr != NULL; curr = next) {
+        next = curr->next;
+        curr->next = prev;
+        prev = curr;
+    }
+
+    return prev;
+}
+
+// 12. BUBBLE SORT (Using nested for loops)
+void bubbleSort(struct Node* head) {
+    if (head == NULL || head->next == NULL)
+        return;
+
+    for (struct Node* i = head; i != NULL; i = i->next) {
+        int swapped = 0;
+
+        for (struct Node* temp = head; temp->next != NULL; temp = temp->next) {
+            if (temp->data > temp->next->data) {
+                int x = temp->data;
+                temp->data = temp->next->data;
+                temp->next->data = x;
+                swapped = 1;
+            }
+        }
+
+        if (!swapped)
+            break;
+    }
+}
+
+// 13. SELECTION SORT 
+void selectionSort(struct Node* head) {
+    for (struct Node* i = head; i != NULL && i->next != NULL; i = i->next) {
+        struct Node* min = i;
+
+        for (struct Node* ptr = i->next; ptr != NULL; ptr = ptr->next) {
+            if (ptr->data < min->data)
+                min = ptr;
+        }
+
+        int x = i->data;
+        i->data = min->data;
+        min->data = x;
+    }
+}
+
+// 14. INSERTION SORT 
+void insertionSort(struct Node* head) {
+    if (head == NULL || head->next == NULL)
+        return;
+
+    for (struct Node* curr = head->next; curr != NULL; curr = curr->next) {
+        for (struct Node* ptr = head; ptr != curr; ptr = ptr->next) {
+            if (ptr->data > curr->data) {
+                int x = ptr->data;
+                ptr->data = curr->data;
+                curr->data = x;
+            }
+        }
+    }
+}
+
+// 15. QUICK SORT (Divide & Conquer with for-loop Partition)
+void quickSort(struct Node* low, struct Node* high) {
+    if (low == NULL || high == NULL || low == high || low == high->next)
+        return;
+
+    int pivot = high->data;
+    struct Node* i = NULL;
+
+    // PARTITION
+    for (struct Node* j = low; j != high; j = j->next) {
+        if (j->data <= pivot) {
+            if (i == NULL)
+                i = low;
+            else
+                i = i->next;
+
+            int x = i->data;
+            i->data = j->data;
+            j->data = x;
+        }
+    }
+
+    struct Node* p;
+    if (i == NULL)
+        p = low;
+    else
+        p = i->next;
+
+    int x = p->data;
+    p->data = high->data;
+    high->data = x;
+
+    // FIND PREVIOUS NODE (LEFT PARTITION)
+    if (p != low) {
+        struct Node* prev = low;
+        for (; prev->next != p; prev = prev->next);
+        quickSort(low, prev);
+    }
+
+    // RIGHT PARTITION
+    quickSort(p->next, high);
+}
+
+// 16. MERGE SORT (Divide & Conquer with iterative for-loop Merge)
+struct Node* merge(struct Node* a, struct Node* b) {
+    struct Node dummy;
+    struct Node* tail = &dummy;
+    dummy.next = NULL;
+
+    for (; a != NULL && b != NULL; tail = tail->next) {
+        if (a->data <= b->data) {
+            tail->next = a;
+            a = a->next;
+        } else {
+            tail->next = b;
+            b = b->next;
+        }
+    }
+
+    tail->next = (a != NULL) ? a : b;
+    return dummy.next;
+}
+
+struct Node* mergeSort(struct Node* head) {
+    if (head == NULL || head->next == NULL)
+        return head;
+
+    struct Node* slow = head;
+    struct Node* fast = head->next;
+
+    for (; fast != NULL && fast->next != NULL; slow = slow->next, fast = fast->next->next);
+
+    struct Node* mid = slow->next;
+    slow->next = NULL;
+
+    struct Node* left = mergeSort(head);
+    struct Node* right = mergeSort(mid);
+
+    return merge(left, right);
+}
+
 int main() {
     struct Node* head = NULL;
+    struct Node* last = NULL;
     int choice, val, pos, res;
 
     for (;;) {
-        printf("\n--- LINKED LIST ---\n");
+        printf("\n--- LINKED LIST (FOR LOOP) ---\n");
         printf("1. Insert at Beginning\n");
         printf("2. Insert at End\n");
         printf("3. Insert Anywhere (Position)\n");
@@ -137,6 +286,12 @@ int main() {
         printf("8. Search Element (1-based Node Number)\n");
         printf("9. Search Element (0-based Index)\n");
         printf("10. Display\n");
+        printf("11. Reverse Linked List\n");
+        printf("12. Bubble Sort\n");
+        printf("13. Selection Sort\n");
+        printf("14. Insertion Sort\n");
+        printf("15. Quick Sort\n");
+        printf("16. Merge Sort\n");
         printf("0. Exit\n");
         printf("Enter choice: ");
         scanf("%d", &choice);
@@ -147,7 +302,7 @@ int main() {
             case 1:
                 printf("Enter value: ");
                 scanf("%d", &val);
-                head = insertAtBeginning(head, val); // Fixed function call
+                head = insertAtBeginning(head, val);
                 break;
             case 2:
                 printf("Enter value: ");
@@ -188,6 +343,37 @@ int main() {
                 else printf("Element %d is at Index %d\n", val, res);
                 break;
             case 10:
+                display(head);
+                break;
+            case 11:
+                head = reverseList(head);
+                printf("Reversed Linked List:\n");
+                display(head);
+                break;
+            case 12:
+                bubbleSort(head);
+                printf("Sorted Linked List (Bubble Sort):\n");
+                display(head);
+                break;
+            case 13:
+                selectionSort(head);
+                printf("Sorted Linked List (Selection Sort):\n");
+                display(head);
+                break;
+            case 14:
+                insertionSort(head);
+                printf("Sorted Linked List (Insertion Sort):\n");
+                display(head);
+                break;
+            case 15:
+                for (last = head; last != NULL && last->next != NULL; last = last->next);
+                quickSort(head, last);
+                printf("Sorted Linked List (Quick Sort):\n");
+                display(head);
+                break;
+            case 16:
+                head = mergeSort(head);
+                printf("Sorted Linked List (Merge Sort):\n");
                 display(head);
                 break;
             default:
